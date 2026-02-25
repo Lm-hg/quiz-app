@@ -10,7 +10,7 @@ import Leaderboard from './components/Leaderboard';
 
 function App() {
   const [phase, setPhase] = useState<'create' | 'lobby' | 'question' | 'results' | 'leaderboard'>('create');
-  const { roomState, connected, error, sendMessage } = useWebSocket('ws://localhost:8080');
+  const { roomState, connected, error, sendMessage } = useWebSocket('ws://localhost:3001');
 
   // Synchroniser la phase avec l'état de la room
   useEffect(() => {

@@ -14,10 +14,8 @@ const PORT = 3001
 // ---- Stockage global des salles ----
 /** Map des salles : code du quiz -> QuizRoom */
 const rooms = new Map<string, QuizRoom>()
-
 /** Map inverse pour retrouver la salle d'un joueur : WebSocket -> { room, playerId } */
 const clientRoomMap = new Map<WebSocket, { room: QuizRoom; playerId: string }>()
-
 /** Map pour retrouver la salle du host : WebSocket -> QuizRoom */
 const hostRoomMap = new Map<WebSocket, QuizRoom>()
 
