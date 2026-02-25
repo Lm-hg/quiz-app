@@ -261,7 +261,7 @@ export class QuizRoom {
 
     const distribution = new Array(currentQuestion.choices.length).fill(0)
     for (const choiceIndex of this.answers.values()) {
-      distribution[choiceIndex]++.
+      distribution[choiceIndex] += 1
     }
 
 
