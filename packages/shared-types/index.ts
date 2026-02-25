@@ -1,50 +1,36 @@
-export interface Question {
-  id: string;
-  text: string;
-  options: string[];
-  correctAnswer: number;
-  timeLimit: number; // en secondes
+// ============================================================
+// Types partages entre le serveur, le host-app et le player-app
+// Ce fichier est COMPLET - ne pas modifier
+// ============================================================
+
+/** Une question de quiz avec ses choix et la bonne reponse */
+export interface QuizQuestion {
+  id: string
+  text: string
+  choices: string[]
+  correctIndex: number
+  timerSec: number
 }
 
-export interface Quiz {
-  id: string;
-  title: string;
-  questions: Question[];
-}
+/** Les differentes phases d'un quiz */
+export type QuizPhase = 'lobby' | 'question' | 'results' | 'leaderboard' | 'ended'
 
-export interface Player {
-  id: string;
-  name: string;
-  score: number;
-}
+/** Messages envoyes par les clients (host ou player) vers le serveur */
+export type ClientMessage =
+  | { type: 'join'; quizCode: string; name: string }
+  | { type: 'answer'; questionId: string; choiceIndex: number }
+  | { type: 'host:create'; title: string; questions: QuizQuestion[] }
+  | { type: 'host:start' }
+  | { type: 'host:next' }
+  | { type: 'host:end' }
 
-export interface QuizRoom {
-  code: string;
-  quiz: Quiz | null;
-  players: Player[];
-  currentQuestionIndex: number;
-  phase: 'waiting' | 'question' | 'results' | 'leaderboard';
-  answers: Record<string, number>; // playerId -> answerIndex
-}
-
-export interface AnswerResult {
-  playerId: string;
-  playerName: string;
-  correct: boolean;
-  answerIndex: number;
-  timeTaken: number;
-}
-
-// Messages WebSocket
-export type WSMessage =
-  | { type: 'create-room'; quiz: Quiz }
-  | { type: 'room-created'; code: string }
-  | { type: 'join-room'; code: string; playerName: string }
-  | { type: 'player-joined'; player: Player }
-  | { type: 'room-state'; room: QuizRoom }
-  | { type: 'start-quiz' }
-  | { type: 'next-question' }
-  | { type: 'submit-answer'; questionId: string; answerIndex: number; timeTaken: number }
-  | { type: 'question-results'; results: AnswerResult[] }
-  | { type: 'show-leaderboard'; players: Player[] }
-  | { type: 'error'; message: string };
+/** Messages envoyes par le serveur vers les clients */
+export type ServerMessage =
+  | { type: 'joined'; playerId: string; players: string[] }
+  | { type: 'question'; question: Omit<QuizQuestion, 'correctIndex'>; index: number; total: number }
+  | { type: 'tick'; remaining: number }
+  | { type: 'results'; correctIndex: number; distribution: number[]; scores: Record<string, number> }
+  | { type: 'leaderboard'; rankings: { name: string; score: number }[] }
+  | { type: 'ended' }
+  | { type: 'error'; message: string }
+  | { type: 'sync'; phase: QuizPhase; data: unknown }
