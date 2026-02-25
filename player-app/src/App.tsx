@@ -26,7 +26,7 @@ interface GameState {
 }
 
 function App() {
-  const ws = useWebSocket('ws://7ce2-185-226-32-80.ngrok-free.app')
+  const ws = useWebSocket('ws:localhost:3001')
   const [state, setState] = useState<GameState>({
     phase: 'lobby',
     playerId: null,

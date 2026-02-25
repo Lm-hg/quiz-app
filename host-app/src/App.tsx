@@ -20,7 +20,7 @@ function App() {
   const [rankings, setRankings] = useState<{ name: string; score: number }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const { status, sendMessage, lastMessage } = useWebSocket('ws://7ce2-185-226-32-80.ngrok-free.app');
+  const { status, sendMessage, lastMessage } = useWebSocket('ws:localhost:3001');
 
   // Gérer les messages reçus du serveur
   useEffect(() => {
