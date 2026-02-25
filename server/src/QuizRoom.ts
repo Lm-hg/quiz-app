@@ -150,6 +150,8 @@ export class QuizRoom {
    * Traite la reponse d'un joueur.
    * - Verifier qu'on est en phase 'question'
    * - Verifier que le joueur n'a pas deja repondu
+   * 
+   * 
    * - Enregistrer la reponse dans this.answers
    * - Si la reponse est correcte, calculer et ajouter les points :
    *   score = 1000 + Math.round(500 * (this.remaining / question.timerSec))
