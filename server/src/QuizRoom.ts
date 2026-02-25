@@ -66,25 +66,22 @@ export class QuizRoom {
    * @returns l'ID du joueur cree
    */
   addPlayer(name: string, ws: WebSocket): string {
-    const playerId = Math.random().toString(36).substring(2, 15)
-    
+    const playerId = Math.random().toString(36).substring(2, 15);
     const player: Player = {
       id: playerId,
       name,
       ws
     }
-    
-    this.players.set(playerId, player)
-    this.scores.set(playerId, 0)
-    
-    const playerNames = Array.from(this.players.values()).map(p => p.name)
+    this.players.set(playerId, player);
+    this.scores.set(playerId, 0);
+
+    const playerNames = Array.from(this.players.values()).map(p => p.name);
     this.broadcastToAll({
       type: 'joined',
-      playerId,
+      playerId: playerId,
       players: playerNames
-    })
-    
-    return playerId
+    });
+    return playerId;
   }
 
   /**
@@ -96,18 +93,18 @@ export class QuizRoom {
   start(): void {
     if (this.phase !== 'lobby') {
       if (this.hostWs) {
-        send(this.hostWs, { type: 'error', message: 'Le quiz a déjà commencé' })
+        send(this.hostWs, { type: 'error', message: 'Le quiz commencé' })
       }
       return
     }
-    
+
     if (this.players.size === 0) {
       if (this.hostWs) {
-        send(this.hostWs, { type: 'error', message: 'Aucun joueur connecté' })
+        send(this.hostWs, { type: 'error', message: 'Aacun joueur connecté..' })
       }
       return
     }
-    
+
     this.nextQuestion()
   }
 
@@ -128,22 +125,22 @@ export class QuizRoom {
       clearInterval(this.timerId)
       this.timerId = null
     }
-    
+
     this.currentQuestionIndex++
-    
+
     if (this.currentQuestionIndex >= this.questions.length) {
-      this.broadcastLeaderboard()
+      this.broadcastLeaderboard();
       return
     }
-    
+
     this.answers.clear()
-    this.phase = 'question'
-    
+    this.phase = 'question';
+
     const currentQuestion = this.questions[this.currentQuestionIndex]
     this.remaining = currentQuestion.timerSec
-    
+
     this.broadcastQuestion()
-    
+
     this.timerId = setInterval(() => {
       this.tick()
     }, 1000)
@@ -153,6 +150,8 @@ export class QuizRoom {
    * Traite la reponse d'un joueur.
    * - Verifier qu'on est en phase 'question'
    * - Verifier que le joueur n'a pas deja repondu
+   * 
+   * 
    * - Enregistrer la reponse dans this.answers
    * - Si la reponse est correcte, calculer et ajouter les points :
    *   score = 1000 + Math.round(500 * (this.remaining / question.timerSec))
@@ -162,23 +161,23 @@ export class QuizRoom {
     if (this.phase !== 'question') {
       return
     }
-    
+
     if (this.answers.has(playerId)) {
       return
     }
-    
+
     this.answers.set(playerId, choiceIndex)
-    
+
     const currentQuestion = this.questions[this.currentQuestionIndex]
     if (choiceIndex === currentQuestion.correctIndex) {
       const baseScore = 1000
       const timeBonus = Math.round(500 * (this.remaining / currentQuestion.timerSec))
       const score = baseScore + timeBonus
-      
+
       const currentScore = this.scores.get(playerId) || 0
       this.scores.set(playerId, currentScore + score)
     }
-    
+
     if (this.answers.size === this.players.size) {
       this.timeUp()
     }
@@ -191,13 +190,12 @@ export class QuizRoom {
    * - Si remaining <= 0, appeler timeUp()
    */
   private tick(): void {
-    this.remaining--
-    
+    this.remaining--;
+
     this.broadcastToAll({
       type: 'tick',
       remaining: this.remaining
     })
-    
     if (this.remaining <= 0) {
       this.timeUp()
     }
@@ -214,7 +212,6 @@ export class QuizRoom {
       clearInterval(this.timerId)
       this.timerId = null
     }
-    
     this.phase = 'results'
     this.broadcastResults()
   }
@@ -245,7 +242,6 @@ export class QuizRoom {
   private broadcastQuestion(): void {
     const currentQuestion = this.questions[this.currentQuestionIndex]
     const { correctIndex, ...questionWithoutAnswer } = currentQuestion
-    
     this.broadcastToAll({
       type: 'question',
       question: questionWithoutAnswer,
@@ -262,22 +258,25 @@ export class QuizRoom {
    */
   private broadcastResults(): void {
     const currentQuestion = this.questions[this.currentQuestionIndex]
-    
+
     const distribution = new Array(currentQuestion.choices.length).fill(0)
     for (const choiceIndex of this.answers.values()) {
-      distribution[choiceIndex]++
+      distribution[choiceIndex]++.
     }
-    
+
+
+
+
     const scores: Record<string, number> = {}
     for (const [playerId, player] of this.players.entries()) {
       scores[player.name] = this.scores.get(playerId) || 0
     }
-    
+
     this.broadcastToAll({
       type: 'results',
       correctIndex: currentQuestion.correctIndex,
-      distribution,
-      scores
+      distribution: distribution,
+      scores: scores
     })
   }
 
@@ -294,9 +293,9 @@ export class QuizRoom {
         score: this.scores.get(player.id) || 0
       }))
       .sort((a, b) => b.score - a.score)
-    
+
     this.phase = 'leaderboard'
-    
+
     this.broadcastToAll({
       type: 'leaderboard',
       rankings
@@ -314,9 +313,9 @@ export class QuizRoom {
       clearInterval(this.timerId)
       this.timerId = null
     }
-    
+
     this.phase = 'ended'
-    
+
     this.broadcastToAll({
       type: 'ended'
     })
