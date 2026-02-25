@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 const port: number = 8080;
 const wss = new WebSocketServer({ port });
 
-console.log(`🚀 Serveur WebSocket lancé sur le port ${port}`);
+console.log(`Serveur WebSocket lancé sur le port ${port}`);
 
 wss.on('connection', (socket: WebSocket) => {
   console.log('Un client est connecté !');
