@@ -1,8 +1,6 @@
-import type { Player } from '@shared-types';
-
 interface LobbyProps {
   code: string;
-  players: Player[];
+  players: string[];
   onStartQuiz: () => void;
 }
 
@@ -49,17 +47,17 @@ const Lobby = ({ code, players, onStartQuiz }: LobbyProps) => {
               <p className="empty-hint">Les joueurs apparaîtront ici quand ils rejoindront</p>
             </div>
           ) : (
-            players.map((player, index) => (
+            players.map((playerName, index) => (
               <div
-                key={player.id}
+                key={index}
                 className="player-card"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="player-avatar">
-                  {player.name.charAt(0).toUpperCase()}
+                  {playerName.charAt(0).toUpperCase()}
                 </div>
                 <div className="player-info">
-                  <span className="player-name">{player.name}</span>
+                  <span className="player-name">{playerName}</span>
                   <span className="player-status">✓ Prêt</span>
                 </div>
               </div>

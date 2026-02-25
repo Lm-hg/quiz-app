@@ -1,11 +1,9 @@
-import type { Player } from '@shared-types';
-
 interface LeaderboardProps {
-  players: Player[];
+  rankings: { name: string; score: number }[];
+  onEnd?: () => void;
 }
 
-const Leaderboard = ({ players }: LeaderboardProps) => {
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+const Leaderboard = ({ rankings, onEnd }: LeaderboardProps) => {
 
   const getMedalEmoji = (rank: number) => {
     switch (rank) {
@@ -49,20 +47,20 @@ const Leaderboard = ({ players }: LeaderboardProps) => {
       </div>
 
       <div className="leaderboard-content">
-        {sortedPlayers.length === 0 ? (
+        {rankings.length === 0 ? (
           <div className="empty-leaderboard">
             <p>Aucun joueur n'a participé</p>
           </div>
         ) : (
           <>
             {/* Podium pour les 3 premiers */}
-            {sortedPlayers.length >= 3 && (
+            {rankings.length >= 3 && (
               <div className="podium">
                 <div className="podium-position second">
                   <div className="podium-player">
-                    <div className="podium-avatar">{sortedPlayers[1].name.charAt(0).toUpperCase()}</div>
-                    <div className="podium-name">{sortedPlayers[1].name}</div>
-                    <div className="podium-score">{sortedPlayers[1].score} pts</div>
+                    <div className="podium-avatar">{rankings[1].name.charAt(0).toUpperCase()}</div>
+                    <div className="podium-name">{rankings[1].name}</div>
+                    <div className="podium-score">{rankings[1].score} pts</div>
                   </div>
                   <div className="podium-base">
                     <div className="podium-medal">🥈</div>
@@ -72,10 +70,10 @@ const Leaderboard = ({ players }: LeaderboardProps) => {
 
                 <div className="podium-position first">
                   <div className="podium-player">
-                    <div className="podium-avatar winner">{sortedPlayers[0].name.charAt(0).toUpperCase()}</div>
+                    <div className="podium-avatar winner">{rankings[0].name.charAt(0).toUpperCase()}</div>
                     <div className="podium-crown">👑</div>
-                    <div className="podium-name">{sortedPlayers[0].name}</div>
-                    <div className="podium-score">{sortedPlayers[0].score} pts</div>
+                    <div className="podium-name">{rankings[0].name}</div>
+                    <div className="podium-score">{rankings[0].score} pts</div>
                   </div>
                   <div className="podium-base">
                     <div className="podium-medal">🥇</div>
@@ -83,12 +81,12 @@ const Leaderboard = ({ players }: LeaderboardProps) => {
                   </div>
                 </div>
 
-                {sortedPlayers.length >= 3 && (
+                {rankings.length >= 3 && (
                   <div className="podium-position third">
                     <div className="podium-player">
-                      <div className="podium-avatar">{sortedPlayers[2].name.charAt(0).toUpperCase()}</div>
-                      <div className="podium-name">{sortedPlayers[2].name}</div>
-                      <div className="podium-score">{sortedPlayers[2].score} pts</div>
+                      <div className="podium-avatar">{rankings[2].name.charAt(0).toUpperCase()}</div>
+                      <div className="podium-name">{rankings[2].name}</div>
+                      <div className="podium-score">{rankings[2].score} pts</div>
                     </div>
                     <div className="podium-base">
                       <div className="podium-medal">🥉</div>
@@ -103,9 +101,9 @@ const Leaderboard = ({ players }: LeaderboardProps) => {
             <div className="rankings-list">
               <h2>📋 Classement complet</h2>
               <div className="rankings-table">
-                {sortedPlayers.map((player, index) => (
+                {rankings.map((player, index) => (
                   <div
-                    key={player.id}
+                    key={index}
                     className={`ranking-row ${getPositionClass(index)}`}
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
@@ -120,7 +118,7 @@ const Leaderboard = ({ players }: LeaderboardProps) => {
                       <span className="score-value">{player.score}</span>
                       <span className="score-label">points</span>
                     </div>
-                    {index === 0 && sortedPlayers.length > 1 && (
+                    {index === 0 && rankings.length > 1 && (
                       <div className="winner-badge">Champion</div>
                     )}
                   </div>
@@ -133,6 +131,11 @@ const Leaderboard = ({ players }: LeaderboardProps) => {
 
       <div className="leaderboard-footer">
         <p>Merci d'avoir joué ! 🎮</p>
+        {onEnd && (
+          <button onClick={onEnd} className="btn-end-quiz">
+            Terminer le quiz
+          </button>
+        )}
       </div>
     </div>
   );

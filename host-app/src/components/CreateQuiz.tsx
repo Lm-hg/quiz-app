@@ -1,29 +1,29 @@
 import { useState } from 'react';
-import type { Quiz, Question } from '@shared-types';
+import type { QuizQuestion } from '@shared-types';
 
 interface CreateQuizProps {
-  onCreateQuiz: (quiz: Quiz) => void;
+  onCreateQuiz: (title: string, questions: QuizQuestion[]) => void;
 }
 
 const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
   const [title, setTitle] = useState('');
-  const [questions, setQuestions] = useState<Question[]>([
+  const [questions, setQuestions] = useState<QuizQuestion[]>([
     {
       id: '1',
       text: '',
-      options: ['', '', '', ''],
-      correctAnswer: 0,
-      timeLimit: 30,
+      choices: ['', '', '', ''],
+      correctIndex: 0,
+      timerSec: 30,
     },
   ]);
 
   const addQuestion = () => {
-    const newQuestion: Question = {
+    const newQuestion: QuizQuestion = {
       id: String(questions.length + 1),
       text: '',
-      options: ['', '', '', ''],
-      correctAnswer: 0,
-      timeLimit: 30,
+      choices: ['', '', '', ''],
+      correctIndex: 0,
+      timerSec: 30,
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -34,7 +34,7 @@ const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
     }
   };
 
-  const updateQuestion = (index: number, field: keyof Question, value: any) => {
+  const updateQuestion = (index: number, field: keyof QuizQuestion, value: any) => {
     const updated = [...questions];
     updated[index] = { ...updated[index], [field]: value };
     setQuestions(updated);
@@ -42,26 +42,19 @@ const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
 
   const updateOption = (qIndex: number, oIndex: number, value: string) => {
     const updated = [...questions];
-    const options = [...updated[qIndex].options];
-    options[oIndex] = value;
-    updated[qIndex] = { ...updated[qIndex], options };
+    const choices = [...updated[qIndex].choices];
+    choices[oIndex] = value;
+    updated[qIndex] = { ...updated[qIndex], choices };
     setQuestions(updated);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const quiz: Quiz = {
-      id: Date.now().toString(),
-      title,
-      questions,
-    };
-
-    onCreateQuiz(quiz);
+    onCreateQuiz(title, questions);
   };
 
   const isValid = title.trim() && questions.every(q => 
-    q.text.trim() && q.options.every(o => o.trim())
+    q.text.trim() && q.choices.every(o => o.trim())
   );
 
   return (
@@ -115,7 +108,7 @@ const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
               </div>
 
               <div className="options-grid">
-                {question.options.map((option, oIndex) => (
+                {question.choices.map((option, oIndex) => (
                   <div key={oIndex} className="option-group">
                     <label htmlFor={`q${qIndex}-opt${oIndex}`}>
                       Option {oIndex + 1}
@@ -127,14 +120,14 @@ const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
                         value={option}
                         onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
                         placeholder={`Option ${oIndex + 1}`}
-                        className={question.correctAnswer === oIndex ? 'correct-option' : ''}
+                        className={question.correctIndex === oIndex ? 'correct-option' : ''}
                         required
                       />
                       <input
                         type="radio"
                         name={`correct-${qIndex}`}
-                        checked={question.correctAnswer === oIndex}
-                        onChange={() => updateQuestion(qIndex, 'correctAnswer', oIndex)}
+                        checked={question.correctIndex === oIndex}
+                        onChange={() => updateQuestion(qIndex, 'correctIndex', oIndex)}
                         aria-label={`Marquer comme bonne réponse`}
                       />
                     </div>
@@ -144,7 +137,7 @@ const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
 
               <div className="form-group">
                 <label htmlFor={`time-${qIndex}`}>
-                  Temps limite: {question.timeLimit}s
+                  Temps limite: {question.timerSec}s
                 </label>
                 <input
                   id={`time-${qIndex}`}
@@ -152,8 +145,8 @@ const CreateQuiz = ({ onCreateQuiz }: CreateQuizProps) => {
                   min="10"
                   max="60"
                   step="5"
-                  value={question.timeLimit}
-                  onChange={(e) => updateQuestion(qIndex, 'timeLimit', Number(e.target.value))}
+                  value={question.timerSec}
+                  onChange={(e) => updateQuestion(qIndex, 'timerSec', Number(e.target.value))}
                   className="time-slider"
                 />
               </div>

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import type { Question, Player } from '@shared-types';
+import type { QuizQuestion } from '@shared-types';
 
 interface ResultsProps {
-  question: Question;
-  answers: Record<string, number>;
-  players: Player[];
-  onNext: () => void;
+  question: QuizQuestion;
+  distribution: number[];
+  scores: Record<string, number>;
+  onNext?: () => void;
 }
 
 interface OptionStats {
@@ -16,7 +16,7 @@ interface OptionStats {
   isCorrect: boolean;
 }
 
-const Results = ({ question, answers, players, onNext }: ResultsProps) => {
+const Results = ({ question, distribution, scores, onNext }: ResultsProps) => {
   const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
@@ -24,22 +24,24 @@ const Results = ({ question, answers, players, onNext }: ResultsProps) => {
     setTimeout(() => setShowResults(true), 300);
   }, []);
 
+  const playerCount = Object.keys(scores).length;
+
   // Calculer les statistiques pour chaque option
-  const optionStats: OptionStats[] = question.options.map((text, index) => {
-    const count = Object.values(answers).filter(a => a === index).length;
-    const percentage = players.length > 0 ? (count / players.length) * 100 : 0;
+  const optionStats: OptionStats[] = question.choices.map((text, index) => {
+    const count = distribution[index] || 0;
+    const percentage = playerCount > 0 ? (count / playerCount) * 100 : 0;
     
     return {
       index,
       text,
       count,
       percentage,
-      isCorrect: index === question.correctAnswer,
+      isCorrect: index === question.correctIndex,
     };
   });
 
   const maxCount = Math.max(...optionStats.map(s => s.count), 1);
-  const correctCount = optionStats[question.correctAnswer].count;
+  const correctCount = optionStats[question.correctIndex].count;
 
   return (
     <div className="results">
@@ -57,12 +59,12 @@ const Results = ({ question, answers, players, onNext }: ResultsProps) => {
           </div>
           <div className="stat-card incorrect">
             <div className="stat-icon">❌</div>
-            <div className="stat-value">{players.length - correctCount}</div>
+            <div className="stat-value">{playerCount - correctCount}</div>
             <div className="stat-label">Mauvaises réponses</div>
           </div>
           <div className="stat-card total">
             <div className="stat-icon">👥</div>
-            <div className="stat-value">{players.length}</div>
+            <div className="stat-value">{playerCount}</div>
             <div className="stat-label">Joueurs</div>
           </div>
         </div>
@@ -106,15 +108,22 @@ const Results = ({ question, answers, players, onNext }: ResultsProps) => {
         <div className="correct-answer-highlight">
           <div className="highlight-icon">🎯</div>
           <div className="highlight-text">
-            La bonne réponse était : <strong>{question.options[question.correctAnswer]}</strong>
+            La bonne réponse était : <strong>{question.choices[question.correctIndex]}</strong>
           </div>
         </div>
       </div>
 
       <div className="results-actions">
-        <button onClick={onNext} className="btn-next">
-          Continuer →
-        </button>
+        {onNext && (
+          <button onClick={onNext} className="btn-next">
+            Question suivante →
+          </button>
+        )}
+        {!onNext && (
+          <div className="results-done">
+            <p>Préparation du classement final...</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,38 +1,27 @@
-import { useState, useEffect } from 'react';
-import type { Question, Player } from '@shared-types';
+import { useEffect, useState } from 'react';
+import type { QuizQuestion } from '@shared-types';
 
 interface QuestionViewProps {
-  question: Question;
+  question: Omit<QuizQuestion, 'correctIndex'>;
   questionNumber: number;
   totalQuestions: number;
-  players: Player[];
+  timeRemaining: number;
+  playerCount: number;
 }
 
-const QuestionView = ({ question, questionNumber, totalQuestions, players }: QuestionViewProps) => {
-  const [timeLeft, setTimeLeft] = useState(question.timeLimit);
+const QuestionView = ({ question, questionNumber, totalQuestions, timeRemaining, playerCount }: QuestionViewProps) => {
   const [answeredPlayers, setAnsweredPlayers] = useState(0);
 
   useEffect(() => {
-    setTimeLeft(question.timeLimit);
     setAnsweredPlayers(0);
   }, [question]);
-
-  useEffect(() => {
-    if (timeLeft <= 0) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft]);
 
   // Simulation de joueurs répondant (à remplacer par vraie logique WebSocket)
   useEffect(() => {
     const interval = setInterval(() => {
       setAnsweredPlayers((prev) => {
-        const newCount = Math.min(prev + 1, players.length);
-        if (newCount >= players.length) {
+        const newCount = Math.min(prev + 1, playerCount);
+        if (newCount >= playerCount) {
           clearInterval(interval);
         }
         return newCount;
@@ -40,12 +29,12 @@ const QuestionView = ({ question, questionNumber, totalQuestions, players }: Que
     }, 1500);
 
     return () => clearInterval(interval);
-  }, [players.length]);
+  }, [playerCount]);
 
-  const progressPercentage = ((question.timeLimit - timeLeft) / question.timeLimit) * 100;
+  const progressPercentage = ((question.timerSec - timeRemaining) / question.timerSec) * 100;
   const timeColor = 
-    timeLeft > question.timeLimit * 0.5 ? '#4ade80' : 
-    timeLeft > question.timeLimit * 0.25 ? '#fbbf24' : '#ef4444';
+    timeRemaining > question.timerSec * 0.5 ? '#4ade80' : 
+    timeRemaining > question.timerSec * 0.25 ? '#fbbf24' : '#ef4444';
 
   return (
     <div className="question-view">
@@ -89,7 +78,7 @@ const QuestionView = ({ question, questionNumber, totalQuestions, players }: Que
               />
             </svg>
             <div className="timer-value" style={{ color: timeColor }}>
-              {timeLeft}s
+              {timeRemaining}s
             </div>
           </div>
         </div>
@@ -100,7 +89,7 @@ const QuestionView = ({ question, questionNumber, totalQuestions, players }: Que
 
         <div className="options-display">
           <div className="options-grid-view">
-            {question.options.map((option, index) => (
+            {question.choices.map((option, index) => (
               <div
                 key={index}
                 className="option-display"
@@ -120,12 +109,12 @@ const QuestionView = ({ question, questionNumber, totalQuestions, players }: Que
         <div className="players-status">
           <div className="status-icon">👥</div>
           <div className="status-text">
-            {answeredPlayers} / {players.length} joueurs ont répondu
+            {answeredPlayers} / {playerCount} joueurs ont répondu
           </div>
           <div className="status-bar">
             <div 
               className="status-bar-fill"
-              style={{ width: `${(answeredPlayers / players.length) * 100}%` }}
+              style={{ width: `${(answeredPlayers / playerCount) * 100}%` }}
             />
           </div>
         </div>
