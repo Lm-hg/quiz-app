@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Quiz, Question } from '../../../packages/shared-types';
+import type { Quiz, Question } from '@shared-types';
 
 interface CreateQuizProps {
   onCreateQuiz: (quiz: Quiz) => void;

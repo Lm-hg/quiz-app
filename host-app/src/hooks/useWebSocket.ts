@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { WSMessage, QuizRoom } from '../../../packages/shared-types';
+import type { WSMessage, QuizRoom } from '@shared-types';
 
 export const useWebSocket = (url: string) => {
   const [roomState, setRoomState] = useState<QuizRoom | null>(null);

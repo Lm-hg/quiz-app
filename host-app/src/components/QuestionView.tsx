@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Question, Player } from '../../../packages/shared-types';
+import type { Question, Player } from '@shared-types';
 
 interface QuestionViewProps {
   question: Question;

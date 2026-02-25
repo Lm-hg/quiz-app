@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { useWebSocket } from './hooks/useWebSocket';
-import { Quiz } from '../../packages/shared-types';
+import type { Quiz } from '@shared-types';
 import CreateQuiz from './components/CreateQuiz';
 import Lobby from './components/Lobby';
 import QuestionView from './components/QuestionView';
@@ -10,7 +10,7 @@ import Leaderboard from './components/Leaderboard';
 
 function App() {
   const [phase, setPhase] = useState<'create' | 'lobby' | 'question' | 'results' | 'leaderboard'>('create');
-  const { roomState, connected, error, sendMessage } = useWebSocket('ws://localhost:3001');
+  const { roomState, connected, error, sendMessage } = useWebSocket('ws://localhost:8080');
 
   // Synchroniser la phase avec l'état de la room
   useEffect(() => {

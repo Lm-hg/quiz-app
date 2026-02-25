@@ -1,4 +1,4 @@
-import { Player } from '../../../packages/shared-types';
+import type { Player } from '@shared-types';
 
 interface LeaderboardProps {
   players: Player[];
